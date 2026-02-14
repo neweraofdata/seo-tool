@@ -10,7 +10,10 @@ app = FastAPI()
 def get_google_results(keyword):
     results = []
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True)
+        browser = p.chromium.launch(
+    headless=True,
+    args=["--no-sandbox", "--disable-dev-shm-usage"]
+)
         page = browser.new_page()
         page.goto(f"https://www.google.com/search?q={keyword}")
         page.wait_for_timeout(3000)
@@ -96,4 +99,5 @@ def analyze_keyword(keyword: str):
 @app.get("/")
 def home():
     return {"message": "SEO Reverse Engineer Tool is running"}
+
 
