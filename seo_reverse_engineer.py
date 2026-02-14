@@ -93,3 +93,7 @@ def analyze_keyword(keyword: str):
         "competitor_analysis": pages,
         "content_blueprint": blueprint
     }
+@app.get("/")
+def home():
+    return {"message": "SEO Reverse Engineer Tool is running"}
+
