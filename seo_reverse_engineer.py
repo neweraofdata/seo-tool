@@ -9,24 +9,29 @@ app = FastAPI()
 
 def get_google_results(keyword):
     results = []
-    with sync_playwright() as p:
-        browser = p.chromium.launch(
-    headless=True,
-    args=["--no-sandbox", "--disable-dev-shm-usage"]
-)
-        page = browser.new_page()
-        page.goto(f"https://www.google.com/search?q={keyword}")
-        page.wait_for_timeout(3000)
+    try:
+        with sync_playwright() as p:
+            browser = p.chromium.launch(
+                headless=True,
+                args=["--no-sandbox", "--disable-dev-shm-usage"]
+            )
+            page = browser.new_page()
+            page.goto(f"https://www.google.com/search?q={keyword}", timeout=60000)
+            page.wait_for_timeout(5000)
 
-        links = page.query_selector_all("h3")
-        for link in links[:10]:
-            parent = link.evaluate_handle("node => node.closest('a')")
-            if parent:
-                url = parent.get_attribute("href")
-                if url and url.startswith("http"):
-                    results.append(url)
+            links = page.query_selector_all("h3")
+            for link in links[:10]:
+                parent = link.evaluate_handle("node => node.closest('a')")
+                if parent:
+                    url = parent.get_attribute("href")
+                    if url and url.startswith("http"):
+                        results.append(url)
 
-        browser.close()
+            browser.close()
+
+    except Exception as e:
+        print("ERROR:", e)
+
     return results
 
 
@@ -99,5 +104,6 @@ def analyze_keyword(keyword: str):
 @app.get("/")
 def home():
     return {"message": "SEO Reverse Engineer Tool is running"}
+
 
 
